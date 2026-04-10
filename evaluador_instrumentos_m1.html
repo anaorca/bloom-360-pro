@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Instrumentos | Bloom 360°</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #fdfdfd;
+            --surface: #ffffff;
+            --border: #eef2f6;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --indigo-light: #eef2ff;
+        }
+
+        * { margin:0; padding:0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 60px 20px; }
+
+        /* Header & Instructions */
+        .header { text-align: center; margin-bottom: 60px; }
+        .header h1 { font-size: 2.2rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; }
+        .instructions { 
+            background: var(--indigo-light); 
+            border-radius: 20px; 
+            padding: 35px; 
+            margin-bottom: 50px; 
+            border: 1px solid rgba(79, 70, 229, 0.1);
+        }
+        .instructions h3 { margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .instructions p { font-size: 0.95rem; color: #475569; margin-bottom: 20px; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .step { background: white; padding: 15px; border-radius: 12px; font-size: 0.85rem; }
+        .step b { color: var(--primary); display: block; margin-bottom: 5px; }
+
+        /* Main Auditor Tool */
+        .auditor-card {
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+        }
+
+        .criterion { margin-bottom: 40px; }
+        .criterion-label { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .criterion-label h4 { font-size: 1.1rem; font-weight: 600; }
+        .criterion-label span { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono'; }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 10px;
+            appearance: none;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border: 4px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .desc-box { 
+            margin-top: 15px; 
+            padding: 15px; 
+            border-left: 2px solid var(--primary); 
+            background: #f8fafc; 
+            font-size: 0.85rem; 
+            color: var(--text-light);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Results Display */
+        .results-panel {
+            margin-top: 50px;
+            background: var(--text);
+            color: white;
+            border-radius: 24px;
+            padding: 50px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .score-circle {
+            width: 150px; height: 150px;
+            border: 10px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .score-num { font-size: 3rem; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
+
+        .feedback-text h2 { margin-bottom: 15px; font-size: 1.5rem; }
+        .feedback-text p { font-size: 1rem; opacity: 0.8; line-height: 1.6; }
+
+        .btn-report {
+            grid-column: span 2;
+            background: white;
+            color: var(--text);
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .btn-report:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Auditor de Evaluación M1</h1>
+            <p>Escala Técnica de Calidad Pedagógica (1-10)</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📖 Instrucciones de Operación</h3>
+            <p>Esta herramienta sirve para auditar la "salud pedagógica" de tus instrumentos de evaluación (exámenes, proyectos, quices) bajo la óptica de 1956. Sigue estos pasos:</p>
+            <div class="steps">
+                <div class="step"><b>1. Selecciona:</b> Toma un examen que hayas aplicado y tenlo a la mano.</div>
+                <div class="step"><b>2. Ajusta:</b> Mueve los controles según qué tan bien cumple tu examen con cada criterio.</div>
+                <div class="step"><b>3. Califica:</b> Mira tu nota final del 1 al 10 y lee el diagnóstico cualitativo.</div>
+                <div class="step"><b>4. Copia:</b> Genera tu reporte final para tu portafolio de docente en Hotmart.</div>
+            </div>
+        </div>
+
+        <div class="auditor-card">
+            <!-- Criterio 1 -->
+            <div class="criterion">
+                <div class="criterion-label">
+                    <h4>1. Alineación Cognitiva</h4>
+                    <span id="v1">5.0</span>
+                </div>
+                <input type="range" min="0" max="10" step="0.5" value="5" id="c1" oninput="calculate()">
+                <div class="desc-box" id="d1">
+                    Describe si los ítems del examen corresponden realmente al nivel declarado. (Ej: Si dices que es Análisis, ¿realmente el alumno separa partes o solo repite conceptos?)
+                </div>
+            </div>
+
+            <!-- Criterio 2 -->
+            <div class="criterion">
+                <div class="criterion-label">
+                    <h4>2. Amplitud Taxonómica</h4>
+                    <span id="v2">5.0</span>
+                </div>
+                <input type="range" min="0" max="10" step="0.5" value="5" id="c2" oninput="calculate()">
+                <div class="desc-box" id="d2">
+                    Mide el balance. Un examen 100% memorístico (Rojo) puntuará bajo aquí. Se busca incluir niveles de Síntesis o Evaluación (Verde).
+                </div>
+            </div>
+
+            <!-- Criterio 3 -->
+            <div class="criterion">
+                <div class="criterion-label">
+                    <h4>3. Rigor de Acción (Verbos)</h4>
+                    <span id="v3">5.0</span>
+                </div>
+                <input type="range" min="0" max="10" step="0.5" value="5" id="c3" oninput="calculate()">
+                <div class="desc-box" id="d3">
+                    ¿Los verbos de tus preguntas son observables? Evita "entender" o "saber". Prefiere "analizar", "justificar", "comparar".
+                </div>
+            </div>
+
+            <!-- Criterio 4 -->
+            <div class="criterion">
+                <div class="criterion-label">
+                    <h4>4. Calidad Técnica y Estructura</h4>
+                    <span id="v4">5.0</span>
+                </div>
+                <input type="range" min="0" max="10" step="0.5" value="5" id="c4" oninput="calculate()">
+                <div class="desc-box" id="d4">
+                    Instrucciones claras, distractores lógicos en selección múltiple y factibilidad de tiempo para el estudiante.
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <div class="score-circle">
+                    <span class="score-num" id="total-score">5.0</span>
+                    <span class="score-label">Puntaje Final</span>
+                </div>
+                <div class="feedback-text">
+                    <h2 id="feedback-title">Nivel de Salud: Intermedio</h2>
+                    <p id="feedback-desc">Tu instrumento cumple con los requisitos básicos, pero todavía tiene un fuerte componente reproductivo. Intenta elevar el rigor de los verbos para alcanzar el siguiente nivel.</p>
+                </div>
+                <button class="btn-report" onclick="window.print()">GENERAR REPORTE DE CALIFICACIÓN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const v1 = parseFloat(document.getElementById('c1').value);
+            const v2 = parseFloat(document.getElementById('c2').value);
+            const v3 = parseFloat(document.getElementById('c3').value);
+            const v4 = parseFloat(document.getElementById('c4').value);
+
+            document.getElementById('v1').innerText = v1.toFixed(1);
+            document.getElementById('v2').innerText = v2.toFixed(1);
+            document.getElementById('v3').innerText = v3.toFixed(1);
+            document.getElementById('v4').innerText = v4.toFixed(1);
+
+            const total = (v1 + v2 + v3 + v4) / 4;
+            document.getElementById('total-score').innerText = total.toFixed(1);
+
+            updateFeedback(total);
+        }
+
+        function updateFeedback(score) {
+            const title = document.getElementById('feedback-title');
+            const desc = document.getElementById('feedback-desc');
+
+            if (score <= 3.5) {
+                title.innerText = "Nivel de Salud: Crítico";
+                desc.innerText = "Alerta: Tu instrumento está atrapado en la base de la pirámide (Memorización). Para transformar tu práctica, necesitas introducir retos que exijan al estudiante crear o juzgar información.";
+            } else if (score <= 6.5) {
+                title.innerText = "Nivel de Salud: Intermedio";
+                desc.innerText = "Tu examen es funcional y claro, pero le falta ambición pedagógica. Hay un equilibrio, pero la mayoría de los puntos se ganan recordando datos. Sube la apuesta hacia la Síntesis.";
+            } else if (score <= 8.5) {
+                title.innerText = "Nivel de Salud: Avanzado";
+                desc.innerText = "¡Excelente trabajo! Has logrado un equilibrio notable. Tus estudiantes están siendo retados con niveles de Aplicación y Análisis. Estás a un paso de la maestría taxonómica.";
+            } else {
+                title.innerText = "Nivel de Salud: Sobresaliente";
+                desc.innerText = "¡Maestría Bloom M1! Este instrumento es una 'Obra de Arte' pedagógica. Cumple con alineación, diversidad y rigor técnico absoluto. Eres un auditor de alto nivel.";
+            }
+        }
+    </script>
+</body>
+</html>

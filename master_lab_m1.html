@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Bloom 1956 | Master Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #4f46e5;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+            --green: #10b981;
+            --border: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* App Container */
+        .app-shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Nav Header */
+        nav {
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+        .brand span { color: var(--accent); }
+        .progress-bar { height: 4px; background: var(--border); width: 200px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 10%; transition: width 0.5s ease; }
+
+        /* View Management */
+        .view { display: none; padding: 60px 20px; animation: fadeIn 0.6s ease; }
+        .view.active { display: block; }
+
+        /* Intro View */
+        .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .intro-content h1 { font-size: 3.5rem; line-height: 1; margin-bottom: 25px; font-weight: 700; }
+        .intro-content p { font-size: 1.15rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
+        .intro-image { background: white; border-radius: 30px; border: 1px solid var(--border); padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .btn-start { background: var(--accent); color: white; border: none; padding: 20px 40px; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+
+        /* Lab View (Specimens) */
+        .lab-layout { max-width: 800px; margin: 0 auto; }
+        .specimen-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .specimen-id { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .specimen-text { font-size: 1.8rem; font-weight: 600; margin-bottom: 40px; line-height: 1.3; color: #1e293b; }
+        
+        .diagnose-tool { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .light-btn {
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .light-btn i { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+        .light-btn span { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; opacity: 0.6; }
+        
+        .light-btn.active.red { border-color: var(--red); background: #fef2f2; color: var(--red); }
+        .light-btn.active.yellow { border-color: var(--yellow); background: #fffbeb; color: var(--yellow); }
+        .light-btn.active.green { border-color: var(--green); background: #f0fdf4; color: var(--green); }
+        
+        .feedback-area { background: #f1f5f9; border-radius: 15px; padding: 25px; margin-top: 20px; font-size: 0.95rem; display: none; }
+        
+        .actions-footer { margin-top: 40px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-nav { border: none; padding: 15px 30px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-next { background: var(--text-main); color: white; }
+        .btn-prev { background: transparent; color: var(--text-sub); }
+
+        /* Report View */
+        .report-paper { background: white; border: 1px solid var(--border); padding: 60px; border-radius: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); font-family: 'Inter', sans-serif; }
+        .report-header { border-bottom: 2px solid var(--text-main); padding-bottom: 20px; margin-bottom: 40px; }
+        .report-section { margin-bottom: 30px; }
+        .report-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed var(--border); display: grid; grid-template-columns: 1fr 100px; }
+
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .intro-grid { grid-template-columns: 1fr; }
+            .intro-content h1 { font-size: 2.5rem; }
+            .diagnose-tool { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <nav>
+            <div class="brand">BLOOM<span>LAB</span> / M1</div>
+            <div class="progress-bar"><div class="progress-fill" id="p-bar"></div></div>
+        </nav>
+
+        <!-- VIEW 1: BRIEFING -->
+        <main class="view active" id="view-1">
+            <div class="intro-grid">
+                <div class="intro-content">
+                    <h1>Misión: Auditoría 1956</h1>
+                    <p>Has entrado al Laboratorio de Auditoría Técnica del Módulo 1. Aquí no solo leerás sobre la Taxonomía; aprenderás a ver sus fallos, sus virtudes y cómo ha moldeado (o limitado) tu propia enseñanza.</p>
+                    <button class="btn-start" onclick="nextView(2)">EMPEZAR DISECCIÓN</button>
+                </div>
+                <div class="intro-image">
+                    <div style="font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #94a3b8;">
+                        // EXPEDIENTE M1-1956<br>
+                        ESTADO: ACTIVO<br>
+                        OBJETIVO: DETECTAR OBSOLESCENCIA<br>
+                        ---<br>
+                        "En 1956, la meta era crear una lengua franca educativa. Hoy, tú eres el auditor."
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 2: LABORATORY WORK -->
+        <main class="view" id="view-2">
+            <div class="lab-layout">
+                <div class="specimen-card">
+                    <span class="specimen-id" id="spec-id">ESPECÍMEN 01/05</span>
+                    <div class="specimen-text" id="spec-text">"El alumno será capaz de enunciar las tres leyes de Newton de memoria al finalizar la clase."</div>
+                    
+                    <div class="diagnose-tool">
+                        <button class="light-btn" onclick="diagnose('red')" id="btn-red">
+                            <i style="color: var(--red)">●</i>
+                            <span>Nivel Bajo</span>
+                        </button>
+                        <button class="light-btn" onclick="diagnose('yellow')" id="btn-yellow">
+                            <i style="color: var(--warning)">●</i>
+                            <span>Intermedio</span>
+                        </button>
+                        <button class="light-btn" onclick="diagnose('green')" id="btn-green">
+                            <i style="color: var(--green)">●</i>
+                            <span>Nivel Pro</span>
+                        </button>
+                    </div>
+
+                    <div class="feedback-area" id="feedback">
+                        Esto es un feedback dinámico...
+                    </div>
+
+                    <div class="actions-footer">
+                        <button class="btn-nav btn-prev" onclick="prevSpecimen()">ANTERIOR</button>
+                        <button class="btn-nav btn-next" onclick="nextSpecimen()">SIGUIENTE CASO</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 3: PERSONAL CASE -->
+        <main class="view" id="view-3">
+            <div class="lab-layout" style="text-align: center;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Tu Propio Diagnóstico</h2>
+                <p style="color: var(--text-sub); margin-bottom: 40px;">Ahora que has entrenado tu ojo clínico, audita tu propio Resultado de Aprendizaje.</p>
+                
+                <div class="specimen-card" style="text-align: left;">
+                    <textarea id="personal-ra" style="width:100%; border:none; border-bottom: 2px solid var(--border); font-size: 1.5rem; font-family: inherit; font-weight: 500; padding: 20px 0; outline: none; margin-bottom:30px;" placeholder="Escribe tu RA aquí..."></textarea>
+                    <p style="font-size: 0.9rem; color: var(--text-sub); margin-bottom: 15px;">¿En qué color lo clasificarías hoy?</p>
+                    <div class="diagnose-tool">
+                        <!-- Same tool but for user -->
+                        <button class="light-btn" onclick="setPersonal('red')" id="p-red"><i>●</i><span>Rojo</span></button>
+                        <button class="light-btn" onclick="setPersonal('yellow')" id="p-yellow"><i>●</i><span>Amarillo</span></button>
+                        <button class="light-btn" onclick="setPersonal('green')" id="p-green"><i>●</i><span>Verde</span></button>
+                    </div>
+                    <button class="btn-start" style="width:100%" onclick="finishLab()">FINALIZAR AUDITORÍA</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 4: REPORT -->
+        <main class="view" id="view-4">
+            <div class="lab-layout">
+                <div class="report-paper">
+                    <div class="report-header">
+                        <h2 style="text-transform: uppercase; letter-spacing: 2px;">Informe de Hallazgos Pedagógicos</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-sub); margin-top:10px;">GENERADO POR BLOOM-LAB MD1-v1956</p>
+                    </div>
+                    <div class="report-section">
+                        <h3 style="margin-bottom: 20px;">Resumen de Entrenamiento</h3>
+                        <div id="report-items"></div>
+                    </div>
+                    <div class="report-section" style="background: #f8fafc; padding: 30px; border-radius: 10px;">
+                        <h3 style="margin-bottom: 10px;">Tu Autodiagnóstico</h3>
+                        <p id="rep-personal-text" style="font-size: 1.2rem; font-style: italic; margin-bottom:10px;"></p>
+                        <p id="rep-personal-color" style="font-weight: 700;"></p>
+                    </div>
+                    <button class="btn-nav btn-next" style="margin-top: 40px; width:100%" onclick="window.print()">DESCARGAR REPORTE (PDF)</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let currentSpec = 0;
+        const specimens = [
+            { id: "01/05", text: "El alumno será capaz de enunciar las tres leyes de Newton de memoria al finalizar la clase.", feedback: { red: "Correcto: El verbo 'Enunciar de memoria' es el nivel más bajo de 1956 (Conocimiento). Es puramente reproductivo.", yellow: "Error: Esto no requiere comprensión aún, solo repetición mecánica.", green: "Error: Este objetivo no tiene impacto transformador." } },
+            { id: "02/05", text: "Al terminar la unidad, el estudiante explicará con sus propias palabras el funcionamiento del aparato digestivo.", feedback: { red: "Error: Explicar con palabras propias requiere un nivel superior al de memorización.", yellow: "Correcto: Se sitúa en 'Comprensión'. El alumno traduce la información técnica a su propio lenguaje.", green: "Error: Aún no estamos aplicando el conocimiento en un problema real." } },
+            { id: "03/05", text: "El docente demostrará cómo resolver una ecuación de segundo grado en el tablero para que los alumnos lo vean.", feedback: { red: "Diagnóstico: ¡Trampa! Este no es un objetivo del ALUMNO, es una actividad del DOCENTE. En 1956 se cometía mucho este error.", yellow: "Diagnóstico: No es un RA válido para el estudiante.", green: "Diagnóstico: Cuidado, estás evaluando al profesor, no al aprendiente." } },
+            { id: "04/05", text: "El alumno diseñará un nuevo modelo de transporte urbano que reduzca la emisión de CO2 en un 20%.", feedback: { red: "Error: Diseñar algo nuevo es el nivel más alto de la jerarquía.", yellow: "Error: Esto trasciende la simple aplicación técnica.", green: "Correcto: 'Síntesis'. El estudiante combina elementos para crear un todo original y funcional." } },
+            { id: "05/05", text: "El estudiante justificará su posición sobre el uso de energías renovables basándose en el costo-beneficio.", feedback: { red: "Error: Justificar requiere criterios complejos de evaluación.", yellow: "Error: No es una simple explicación de conceptos.", green: "Correcto: 'Evaluación'. Emitir juicios fundamentados era la cima de la pirámide de Bloom (1956)." } }
+        ];
+
+        let results = [];
+        let personalColor = "";
+
+        function nextView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            updateProgress(viewId);
+        }
+
+        function updateProgress(viewId) {
+            const bar = document.getElementById('p-bar');
+            bar.style.width = (viewId * 25) + "%";
+        }
+
+        function diagnose(color) {
+            const spec = specimens[currentSpec];
+            const feedbackBox = document.getElementById('feedback');
+            
+            // Reset buttons
+            document.querySelectorAll('.light-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${color}`).classList.add('active');
+            
+            feedbackBox.innerHTML = `<strong>Veredicto:</strong> ${spec.feedback[color]}`;
+            feedbackBox.style.display = "block";
+            feedbackBox.style.animation = "fadeIn 0.3s ease";
+            
+            results[currentSpec] = { text: spec.text, color: color, diagnosis: spec.feedback[color] };
+        }
+
+        function nextSpecimen() {
+            if (currentSpec < specimens.length - 1) {
+                currentSpec++;
+                refreshSpecimen();
+            } else {
+                nextView(3);
+            }
+        }
+
+        function prevSpecimen() {
+            if (currentSpec > 0) {
+                currentSpec--;
+                refreshSpecimen();
+            }
+        }
+
+        function refreshSpecimen() {
+            const spec = specimens[currentSpec];
+            document.getElementById('spec-id').innerText = `ESPECÍMEN ${spec.id}`;
+            document.getElementById('spec-text').innerText = spec.text;
+            document.getElementById('feedback').style.display = "none";
+            document.querySelectorAll('.light-btn').forEach(b => b.classList.remove('active'));
+        }
+
+        function setPersonal(color) {
+            personalColor = color;
+            document.querySelectorAll('#view-3 .light-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`p-${color}`).classList.add('active');
+        }
+
+        function finishLab() {
+            const raText = document.getElementById('personal-ra').value;
+            if(!raText) { alert("Por favor ingresa tu RA para finalizar."); return; }
+            if(!personalColor) { alert("Por favor selecciona un diagnóstico para tu RA."); return; }
+
+            // Fill results
+            const container = document.getElementById('report-items');
+            container.innerHTML = results.map((r, i) => `
+                <div class="report-item">
+                    <div>
+                        <strong>Caso ${i+1}:</strong> ${r.text}<br>
+                        <span style="font-size: 0.8rem; color: var(--text-sub)">${r.diagnosis}</span>
+                    </div>
+                    <div style="text-align: right; font-weight: bold; color: var(--${r.color})">${r.color.toUpperCase()}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('rep-personal-text').innerText = `"${raText}"`;
+            document.getElementById('rep-personal-color').innerText = `DIAGNÓSTICO: ${personalColor.toUpperCase()}`;
+            document.getElementById('rep-personal-color').style.color = `var(--${personalColor})`;
+
+            nextView(4);
+        }
+    </script>
+</body>
+</html>
